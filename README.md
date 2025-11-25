@@ -53,9 +53,13 @@
 Ακολουθεί παράδειγμα logs.
 
 🚀 Project start — HTML v1.2.1 | JS v1.3.3
-✅ Players initialized (8) — Source: Local (Total IDs = 25) 
+
+✅ Players initialized (8) — Source: Local (Total IDs = 25)
+
 [12:34:56] Player 3 — ▶ Start after 45s, seek=12s : id=JFweOaiCoj4 
+
 🧹 Logs cleared 
+
 🔄 List reloaded — Source: Local (Total IDs = 25)
 
 ---
