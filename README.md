@@ -1,4 +1,4 @@
-# 🎬 Multi‑Viewer YouTube Player
+# 🎬 Active Viewer
 
 Ένα web‑based multi‑viewer που εμφανίζει και διαχειρίζεται πολλαπλά YouTube βίντεο ταυτόχρονα, με φυσική συμπεριφορά και πλήρη έλεγχο μέσω UI.
 
