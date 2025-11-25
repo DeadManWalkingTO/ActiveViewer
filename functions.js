@@ -70,7 +70,7 @@ function loadVideoList() {
       throw "local-empty";
     })
     .catch(() => {
-      return fetch("https://deadmanwalkingto.github.io/MacrosDmW/player/list.txt")
+      return fetch("https://deadmanwalkingto.github.io/ActiveViewer/list.txt")
         .then(r => r.ok ? r.text() : Promise.reject("web-not-found"))
         .then(text => {
           const arr = text.trim().split("\n").map(s => s.trim()).filter(Boolean);
