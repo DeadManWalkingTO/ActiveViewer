@@ -219,4 +219,12 @@ flowchart TD
 - Εμπλουτισμένα logs για καλύτερη παρακολούθηση.
 
 ---
+---
 
+## Modifications v3.1.4
+- Προστέθηκαν νέα counters στα stats: Replay, MidSeeks, Watchdog, Errors.
+- Οι AutoNext / Error skip ενημερώνουν πλέον τα νέα counters.
+- Οι players κλειδώνουν τη λίστα τους στην αρχή (Main, Alt, Internal).
+- Οι συναρτήσεις NextAll / ShuffleAll / RestartAll χρησιμοποιούν την κλειδωμένη λίστα ανά player.
+
+---
