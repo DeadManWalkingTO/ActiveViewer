@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.10.24";
+const JS_VERSION = "v2.11.25";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -338,7 +338,6 @@ function nextAll() {
     p.playVideo();
     logPlayer(i, "⏭ Next", newId);
   });
-  stats.manualNext++;
   log(`[${ts()}] ⏭ Next All`);
 }
 function shuffleAll() {
