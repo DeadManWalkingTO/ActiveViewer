@@ -1,10 +1,12 @@
 // --- Versions
-const JS_VERSION = "v1.3.3";
+const JS_VERSION = "v2.1.2";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
 let players = [];
-let videoList = [];
+let videoListMain = [];   // κύρια λίστα (list.txt)
+let videoListAlt = [];    // δευτερεύουσα λίστα (random.txt)
+let videoList = [];       // συμβατότητα με υπάρχουσα λογική
 let isMutedAll = true;
 let listSource = "Internal"; // Local | Web | Internal
 const stats = { autoNext:0, manualNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
@@ -81,20 +83,35 @@ function loadVideoList() {
     });
 }
 
+// Δευτερεύουσα λίστα (random.txt)
+function loadAltList() {
+  return fetch("random.txt")
+    .then(r => r.ok ? r.text() : Promise.reject("alt-not-found"))
+    .then(text => {
+      const arr = text.trim().split("\n").map(s => s.trim()).filter(Boolean);
+      return arr;
+    })
+    .catch(() => { return []; });
+}
+
 // --- Kick off
-loadVideoList()
-  .then(list => {
-    videoList = list;
+Promise.all([loadVideoList(), loadAltList()])
+  .then(([mainList, altList]) => {
+    videoListMain = mainList;
+    videoListAlt = altList;
+    videoList = videoListMain; // για συμβατότητα με υπάρχουσες συναρτήσεις
     log(`[${ts()}] 🚀 Project start — HTML ${HTML_VERSION} | JS ${JS_VERSION}`);
-    if (typeof YT !== "undefined" && YT.Player) initPlayers(getRandomVideos(8));
+    if (typeof YT !== "undefined" && YT.Player) initPlayers();
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
 // --- Reload list (manual, δεν επηρεάζει τους ενεργούς players)
 function reloadList() {
-  loadVideoList().then(list => {
-    videoList = list;
-    log(`[${ts()}] 🔄 List reloaded — Source: ${listSource} (Total IDs = ${videoList.length})`);
+  Promise.all([loadVideoList(), loadAltList()]).then(([mainList, altList]) => {
+    videoListMain = mainList;
+    videoListAlt = altList;
+    videoList = videoListMain;
+    log(`[${ts()}] 🔄 Lists reloaded — Main:${videoListMain.length} | Alt:${videoListAlt.length}`);
   }).catch(err => {
     log(`[${ts()}] ❌ Reload failed: ${err}`);
   });
@@ -102,23 +119,41 @@ function reloadList() {
 
 // --- YouTube API ready -> init players
 function onYouTubeIframeAPIReady() {
-  if (videoList.length) {
-    initPlayers(getRandomVideos(8));
+  if (videoListMain.length || videoListAlt.length) {
+    initPlayers();
   } else {
     const check = setInterval(() => {
-      if (videoList.length) { clearInterval(check); initPlayers(getRandomVideos(8)); }
+      if (videoListMain.length || videoListAlt.length) { clearInterval(check); initPlayers(); }
     }, 300);
   }
 }
 
-function initPlayers(videoIds) {
-  videoIds.forEach((id, i) => {
+function initPlayers() {
+  // Αν η Alt λίστα έχει <10 IDs, τρέχουμε όπως τώρα (μόνο Main)
+  if (videoListAlt.length < 10) {
+    const ids = getRandomVideos(8);
+    ids.forEach((id, i) => {
+      players[i] = new YT.Player(`player${i+1}`, {
+        videoId: id,
+        events: { onReady: e => onPlayerReady(e, i), onStateChange: e => onPlayerStateChange(e, i) }
+      });
+    });
+    log(`[${ts()}] ✅ Players initialized (8) — Source: ${listSource} (Alt list <10 IDs, ignored)`);
+    return;
+  }
+
+  // Αν η Alt λίστα έχει >=10 IDs, μοιράζουμε τους players στη μέση
+  for (let i = 0; i < 8; i++) {
+    let sourceList = (i < 4) ? videoListMain : videoListAlt;
+    if (!sourceList.length) sourceList = internalList;
+    const id = sourceList[Math.floor(Math.random() * sourceList.length)];
     players[i] = new YT.Player(`player${i+1}`, {
       videoId: id,
       events: { onReady: e => onPlayerReady(e, i), onStateChange: e => onPlayerStateChange(e, i) }
     });
-  });
-  log(`[${ts()}] ✅ Players initialized (${videoIds.length}) — Source: ${listSource} (Total IDs = ${videoList.length})`);
+    logPlayer(i, `Initialized from ${sourceList === videoListMain ? "Main" : "Alt"} list`, id);
+  }
+  log(`[${ts()}] ✅ Players initialized (8) — Main:${videoListMain.length} | Alt:${videoListAlt.length}`);
 }
 
 function onPlayerReady(e, i) {
