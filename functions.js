@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.10.22";
+const JS_VERSION = "v2.10.24";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -239,6 +239,7 @@ function clearPlayerTimers(i) {
   ['midSeek','pauseSmall','pauseLarge'].forEach(k => {
     if (t[k]) { clearTimeout(t[k]); t[k] = null; }
   });
+  logPlayer(i, "🧹 Timers cleared");
 }
 
 // --- Natural behaviors
