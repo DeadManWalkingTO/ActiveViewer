@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.11.25";
+const JS_VERSION = "v2.12.25";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -9,7 +9,7 @@ let videoListAlt = [];    // δευτερεύουσα λίστα (random.txt)
 let videoList = [];       // συμβατότητα με υπάρχουσα λογική
 let isMutedAll = true;
 let listSource = "Internal"; // Local | Web | Internal
-const stats = { autoNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
+const stats = { autoNext:0, pauses:0, volumeChanges:0 };
 
 // --- Log settings
 const MAX_LOGS = 50;
@@ -54,7 +54,7 @@ function updateStats() {
   const el = document.getElementById("statsPanel");
   if (el) {
     el.textContent =
-      `📊 Stats — AutoNext:${stats.autoNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges} ` +
+      `📊 Stats — AutoNext:${stats.autoNext} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges} ` +
       `— HTML ${HTML_VERSION} | JS ${JS_VERSION} | Main:${videoListMain.length} | Alt:${videoListAlt.length}`;
   }
 }
@@ -347,7 +347,6 @@ function shuffleAll() {
     p.playVideo();
     logPlayer(i, "🎲 Shuffle", sh[i]);
   });
-  stats.shuffle++;
   log(`[${ts()}] 🎲 Shuffle All`);
 }
 function restartAll() {
@@ -358,7 +357,6 @@ function restartAll() {
     p.playVideo();
     logPlayer(i, "🔁 Restart", set[i]);
   });
-  stats.restart++;
   log(`[${ts()}] 🔁 Restart All`);
 }
 function toggleMuteAll() {
