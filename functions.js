@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.4.4";
+const JS_VERSION = "v2.4.5";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -56,7 +56,7 @@ function updateStats() {
     el.textContent =
       `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | ` +
       `Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}` +
-      `— HTML ${HTML_VERSION} | JS ${JS_VERSION} | Main:${videoListMain.length} | Alt:${videoListAlt.length}';
+      `— HTML ${HTML_VERSION} | JS ${JS_VERSION} | Main:${videoListMain.length} | Alt:${videoListAlt.length}`;
   }
 }
 const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
