@@ -157,3 +157,23 @@ flowchart TD
 - Το Activity Panel έχει `overflow-y:auto` ώστε να εμφανίζεται scroll αντί να μεγαλώνει.
 - Το layout παραμένει σταθερό και ευανάγνωστο σε όλες τις συσκευές.
 
+---
+
+## 🔄 Playlist Fallback Flow
+
+Η εφαρμογή χρησιμοποιεί μηχανισμό fallback για τη φόρτωση της λίστας αναπαραγωγής.  
+Η διαδικασία ακολουθεί την εξής ροή:
+
+```mermaid
+flowchart TD
+    A[Start] --> B{Local Playlist Available?}
+    B -- Yes --> C[Load Local Playlist]
+    B -- No --> D{Web Playlist Available?}
+    D -- Yes --> E[Fetch Web Playlist]
+    D -- No --> F[Use Internal Default List]
+    C --> G[Initialize Players]
+    E --> G[Initialize Players]
+    F --> G[Initialize Players]
+    G --> H[Ready to Play]
+```
+
