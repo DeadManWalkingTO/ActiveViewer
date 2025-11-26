@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.8.8";
+const JS_VERSION = "v2.10.10";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -205,41 +205,62 @@ function onPlayerStateChange(e, i) {
   }
 }
 
+// --- Timer references per player
+const playerTimers = Array.from({length: 8}, () => ({
+  midSeek: null, pauseSmall: null, pauseLarge: null
+}));
+
+function clearPlayerTimers(i) {
+  const t = playerTimers[i];
+  if (!t) return;
+  ['midSeek','pauseSmall','pauseLarge'].forEach(k => {
+    if (t[k]) { clearTimeout(t[k]); t[k] = null; }
+  });
+}
+
 // --- Natural behaviors
 function scheduleRandomPauses(p, i) {
   const duration = p.getDuration();
   if (duration > 0) {
     // Small pause: γύρω στο 10–20% της διάρκειας
     const delaySmall = (duration * rndInt(10, 20) / 100) * 1000;
-    setTimeout(() => {
+    playerTimers[i].pauseSmall = setTimeout(() => {
       const pauseLen = (duration * rndInt(2, 5) / 100) * 1000; // 2–5% της διάρκειας
-      p.pauseVideo(); stats.pauses++;
+      if (p.getPlayerState() === YT.PlayerState.PLAYING) {
+        p.pauseVideo(); stats.pauses++;
+      }
       logPlayer(i, `⏸ Small pause ${Math.round(pauseLen/1000)}s (duration=${duration}s)`, p.getVideoData().video_id);
       setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after small pause", p.getVideoData().video_id); }, pauseLen);
     }, delaySmall);
 
     // Large pause: γύρω στο 40–60% της διάρκειας
     const delayLarge = (duration * rndInt(40, 60) / 100) * 1000;
-    setTimeout(() => {
+    playerTimers[i].pauseLarge = setTimeout(() => {
       const pauseLen = (duration * rndInt(5, 10) / 100) * 1000; // 5–10% της διάρκειας
-      p.pauseVideo(); stats.pauses++;
+      if (p.getPlayerState() === YT.PlayerState.PLAYING) {
+        p.pauseVideo(); stats.pauses++;
+      }
       logPlayer(i, `⏸ Large pause ${Math.round(pauseLen/1000)}s (duration=${duration}s)`, p.getVideoData().video_id);
       setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after large pause", p.getVideoData().video_id); }, pauseLen);
     }, delayLarge);
   } else {
     // Fallback: αν δεν υπάρχει διάρκεια, κρατάμε την παλιά λογική
     const delaySmall = rndDelayMs(30, 120);
-    setTimeout(() => {
+    playerTimers[i].pauseSmall = setTimeout(() => {
       const pauseLen = rndInt(PAUSE_SMALL_MS[0], PAUSE_SMALL_MS[1]);
-      p.pauseVideo(); stats.pauses++;
+      if (p.getPlayerState() === YT.PlayerState.PLAYING) {
+        p.pauseVideo(); stats.pauses++;
+      }
       logPlayer(i, `⏸ Small pause ${Math.round(pauseLen/1000)}s (fallback)`, p.getVideoData().video_id);
       setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after small pause (fallback)", p.getVideoData().video_id); }, pauseLen);
     }, delaySmall);
 
     const delayLarge = rndDelayMs(120, 240);
-    setTimeout(() => {
+    playerTimers[i].pauseLarge = setTimeout(() => {
       const pauseLen = rndInt(PAUSE_LARGE_MS[0], PAUSE_LARGE_MS[1]);
-      p.pauseVideo(); stats.pauses++;
+      if (p.getPlayerState() === YT.PlayerState.PLAYING) {
+        p.pauseVideo(); stats.pauses++;
+      }
       logPlayer(i, `⏸ Large pause ${Math.round(pauseLen/1000)}s (fallback)`, p.getVideoData().video_id);
       setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after large pause (fallback)", p.getVideoData().video_id); }, pauseLen);
     }, delayLarge);
@@ -248,20 +269,26 @@ function scheduleRandomPauses(p, i) {
 
 function scheduleMidSeek(p, i) {
   const interval = rndInt(MID_SEEK_INTERVAL_MIN[0], MID_SEEK_INTERVAL_MIN[1]) * 60000;
-  setTimeout(() => {
+  playerTimers[i].midSeek = setTimeout(() => {
     const duration = p.getDuration();
     if (duration > 0) {
       // Ορίζουμε το παράθυρο mid-seek ως ποσοστό της διάρκειας (20%–60%)
       const minSeek = Math.floor(duration * 0.2);
       const maxSeek = Math.floor(duration * 0.6);
       const seek = rndInt(minSeek, maxSeek);
-      p.seekTo(seek, true);
-      logPlayer(i, `⤴ Mid-seek to ${seek}s (duration=${duration}s)`, p.getVideoData().video_id);
+      if (p.getPlayerState() === YT.PlayerState.PLAYING) {
+        p.seekTo(seek, true);
+        logPlayer(i, `⤴ Mid-seek to ${seek}s (duration=${duration}s)`, p.getVideoData().video_id);
+      } else {
+        logPlayer(i, `ℹ Skip mid-seek (state=${p.getPlayerState()})`, p.getVideoData().video_id);
+      }
     } else {
       // Αν δεν υπάρχει διαθέσιμη διάρκεια, κρατάμε fallback σταθερό παράθυρο
       const seek = rndInt(MID_SEEK_WINDOW_S[0], MID_SEEK_WINDOW_S[1]);
-      p.seekTo(seek, true);
-      logPlayer(i, `⤴ Mid-seek (fallback) to ${seek}s`, p.getVideoData().video_id);
+      if (p.getPlayerState() === YT.PlayerState.PLAYING) {
+        p.seekTo(seek, true);
+        logPlayer(i, `⤴ Mid-seek (fallback) to ${seek}s`, p.getVideoData().video_id);
+      }
     }
     scheduleMidSeek(p, i);
   }, interval);
