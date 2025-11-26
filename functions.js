@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.12.25";
+const JS_VERSION = "v2.14.36";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -9,7 +9,15 @@ let videoListAlt = [];    // δευτερεύουσα λίστα (random.txt)
 let videoList = [];       // συμβατότητα με υπάρχουσα λογική
 let isMutedAll = true;
 let listSource = "Internal"; // Local | Web | Internal
-const stats = { autoNext:0, pauses:0, volumeChanges:0 };
+const stats = { 
+  autoNext:0, 
+  replay:0, 
+  pauses:0, 
+  midSeeks:0, 
+  watchdog:0, 
+  errors:0, 
+  volumeChanges:0 
+};
 
 // --- Log settings
 const MAX_LOGS = 50;
@@ -54,7 +62,7 @@ function updateStats() {
   const el = document.getElementById("statsPanel");
   if (el) {
     el.textContent =
-      `📊 Stats — AutoNext:${stats.autoNext} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges} ` +
+      `📊 Stats — AutoNext:${stats.autoNext} | Replay:${stats.replay} | Pauses:${stats.pauses} | MidSeeks:${stats.midSeeks} | Watchdog:${stats.watchdog} | Errors:${stats.errors} | VolumeChanges:${stats.volumeChanges} ` +
       `— HTML ${HTML_VERSION} | JS ${JS_VERSION} | Main:${videoListMain.length} | Alt:${videoListAlt.length}`;
   }
 }
@@ -158,6 +166,7 @@ function onPlayerError(e, i) {
   p.loadVideoById(newId);
   stats.autoNext++;
   logPlayer(i, "⏭ AutoNext (error skip)", newId);
+  stats.errors++;
   scheduleRandomPauses(p, i);
   scheduleMidSeek(p, i);
 }
@@ -195,6 +204,7 @@ function onPlayerStateChange(e, i) {
         p.seekTo(0);
         p.playVideo();
         logPlayer(i, "🔁 Replay video", p.getVideoData().video_id);
+        stats.replay++;
       } else {
         clearPlayerTimers(i); // ξανά καθαρισμός πριν το νέο load
         const newId = getRandomVideos(1)[0];
@@ -211,6 +221,7 @@ function onPlayerStateChange(e, i) {
         if (state !== YT.PlayerState.PLAYING) {
           logPlayer(i, `🛠 Watchdog kick (state=${state})`, p.getVideoData().video_id);
           p.playVideo();
+          stats.watchdog++;
         }
       }, 8000);
     }, afterEndPauseMs);
@@ -302,6 +313,7 @@ function scheduleMidSeek(p, i) {
       if (p.getPlayerState() === YT.PlayerState.PLAYING) {
         p.seekTo(seek, true);
         logPlayer(i, `⤴ Mid-seek to ${seek}s (duration=${duration}s)`, p.getVideoData().video_id);
+        stats.midSeeks++;
       } else {
         logPlayer(i, `ℹ Skip mid-seek (state=${p.getPlayerState()})`, p.getVideoData().video_id);
       }
@@ -311,6 +323,7 @@ function scheduleMidSeek(p, i) {
       if (p.getPlayerState() === YT.PlayerState.PLAYING) {
         p.seekTo(seek, true);
         logPlayer(i, `⤴ Mid-seek (fallback) to ${seek}s`, p.getVideoData().video_id);
+        stats.midSeeks++;
       }
     }
     scheduleMidSeek(p, i);
