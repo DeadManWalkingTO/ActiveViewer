@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.1.2";
+const JS_VERSION = "v2.4.4";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
