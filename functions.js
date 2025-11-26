@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.5.7";
+const JS_VERSION = "v2.6.7";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -174,21 +174,43 @@ function onPlayerStateChange(e, i) {
 
 // --- Natural behaviors
 function scheduleRandomPauses(p, i) {
-  const delaySmall = rndDelayMs(30, 120);
-  setTimeout(() => {
-    const pauseLen = rndInt(PAUSE_SMALL_MS[0], PAUSE_SMALL_MS[1]);
-    p.pauseVideo(); stats.pauses++;
-    logPlayer(i, `⏸ Small pause ${Math.round(pauseLen/1000)}s`, p.getVideoData().video_id);
-    setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after small pause", p.getVideoData().video_id); }, pauseLen);
-  }, delaySmall);
+  const duration = p.getDuration();
+  if (duration > 0) {
+    // Small pause: γύρω στο 10–20% της διάρκειας
+    const delaySmall = (duration * rndInt(10, 20) / 100) * 1000;
+    setTimeout(() => {
+      const pauseLen = (duration * rndInt(2, 5) / 100) * 1000; // 2–5% της διάρκειας
+      p.pauseVideo(); stats.pauses++;
+      logPlayer(i, `⏸ Small pause ${Math.round(pauseLen/1000)}s (duration=${duration}s)`, p.getVideoData().video_id);
+      setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after small pause", p.getVideoData().video_id); }, pauseLen);
+    }, delaySmall);
 
-  const delayLarge = rndDelayMs(120, 240);
-  setTimeout(() => {
-    const pauseLen = rndInt(PAUSE_LARGE_MS[0], PAUSE_LARGE_MS[1]);
-    p.pauseVideo(); stats.pauses++;
-    logPlayer(i, `⏸ Large pause ${Math.round(pauseLen/1000)}s`, p.getVideoData().video_id);
-    setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after large pause", p.getVideoData().video_id); }, pauseLen);
-  }, delayLarge);
+    // Large pause: γύρω στο 40–60% της διάρκειας
+    const delayLarge = (duration * rndInt(40, 60) / 100) * 1000;
+    setTimeout(() => {
+      const pauseLen = (duration * rndInt(5, 10) / 100) * 1000; // 5–10% της διάρκειας
+      p.pauseVideo(); stats.pauses++;
+      logPlayer(i, `⏸ Large pause ${Math.round(pauseLen/1000)}s (duration=${duration}s)`, p.getVideoData().video_id);
+      setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after large pause", p.getVideoData().video_id); }, pauseLen);
+    }, delayLarge);
+  } else {
+    // Fallback: αν δεν υπάρχει διάρκεια, κρατάμε την παλιά λογική
+    const delaySmall = rndDelayMs(30, 120);
+    setTimeout(() => {
+      const pauseLen = rndInt(PAUSE_SMALL_MS[0], PAUSE_SMALL_MS[1]);
+      p.pauseVideo(); stats.pauses++;
+      logPlayer(i, `⏸ Small pause ${Math.round(pauseLen/1000)}s (fallback)`, p.getVideoData().video_id);
+      setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after small pause (fallback)", p.getVideoData().video_id); }, pauseLen);
+    }, delaySmall);
+
+    const delayLarge = rndDelayMs(120, 240);
+    setTimeout(() => {
+      const pauseLen = rndInt(PAUSE_LARGE_MS[0], PAUSE_LARGE_MS[1]);
+      p.pauseVideo(); stats.pauses++;
+      logPlayer(i, `⏸ Large pause ${Math.round(pauseLen/1000)}s (fallback)`, p.getVideoData().video_id);
+      setTimeout(() => { p.playVideo(); logPlayer(i, "▶ Resume after large pause (fallback)", p.getVideoData().video_id); }, pauseLen);
+    }, delayLarge);
+  }
 }
 
 function scheduleMidSeek(p, i) {
