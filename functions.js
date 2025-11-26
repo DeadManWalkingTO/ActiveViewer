@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.10.10";
+const JS_VERSION = "v2.10.15";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -138,11 +138,29 @@ function initPlayers() {
     const id = sourceList[Math.floor(Math.random() * sourceList.length)];
     players[i] = new YT.Player(`player${i+1}`, {
       videoId: id,
-      events: { onReady: e => onPlayerReady(e, i), onStateChange: e => onPlayerStateChange(e, i) }
+      events: { 
+        onReady: e => onPlayerReady(e, i), 
+        onStateChange: e => onPlayerStateChange(e, i),
+        onError: e => onPlayerError(e, i)
+      }
     });
     logPlayer(i, `Initialized from ${sourceList === videoListMain ? "Main" : "Alt"} list`, id);
   }
   log(`[${ts()}] ✅ Players initialized (8) — Main:${videoListMain.length} | Alt:${videoListAlt.length}`);
+}
+
+// --- Error handler
+function onPlayerError(e, i) {
+  const p = e.target;
+  const errCode = e.data;
+  logPlayer(i, `❌ Error code=${errCode} — skipping`, p.getVideoData().video_id);
+  clearPlayerTimers(i);
+  const newId = getRandomVideos(1)[0];
+  p.loadVideoById(newId);
+  stats.autoNext++;
+  logPlayer(i, "⏭ AutoNext (error skip)", newId);
+  scheduleRandomPauses(p, i);
+  scheduleMidSeek(p, i);
 }
 
 function onPlayerReady(e, i) {
