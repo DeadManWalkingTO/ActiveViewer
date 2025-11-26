@@ -37,40 +37,43 @@
     }
 
     /* --- Desktop layout --- */
-    @media (min-width:1024px){
-      body {
-        display:flex;
-        flex-direction:column;
-        height:100vh; /* όλο το viewport */
-      }
-      .main {
-        flex:1 1 auto;
-        display:flex;
-        flex-direction:column;
-      }
-      .grid {
-        flex:7; /* 70% του διαθέσιμου χώρου */
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-        gap:10px;
-        padding:10px;
-      }
-      .activity {
-        flex:3; /* 30% του διαθέσιμου χώρου */
-        background:#1a1a1a;
-        border-top:1px solid #333;
-        padding:10px;
-        font-size:13px;
-        overflow-y:auto;
-      }
-      .stats {
-        flex:0 0 auto;
-        background:#222;
-        padding:8px;
-        font-size:12px;
-        border-top:1px solid #333;
-      }
-    }
+@media (min-width:1024px){
+  body {
+    display:flex;
+    flex-direction:column;
+    height:100vh; /* όλο το viewport */
+  }
+  .main {
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    min-height:0; /* αποτρέπει overflow */
+  }
+  .grid {
+    flex:7; /* 70% του διαθέσιμου χώρου */
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    padding:10px;
+    min-height:0; /* επιτρέπει shrink */
+  }
+  .activity {
+    flex:3; /* 30% του διαθέσιμου χώρου */
+    background:#1a1a1a;
+    border-top:1px solid #333;
+    padding:10px;
+    font-size:13px;
+    overflow-y:auto;
+    min-height:0; /* επιτρέπει scroll αντί για αύξηση ύψους */
+  }
+  .stats {
+    flex:0 0 auto;
+    background:#222;
+    padding:8px;
+    font-size:12px;
+    border-top:1px solid #333;
+  }
+}
 
     /* --- Mobile/Tablet layout --- */
     @media (max-width:768px){
