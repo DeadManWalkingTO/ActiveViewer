@@ -9,7 +9,7 @@ let videoListAlt = [];    // δευτερεύουσα λίστα (random.txt)
 let videoList = [];       // συμβατότητα με υπάρχουσα λογική
 let isMutedAll = true;
 let listSource = "Internal"; // Local | Web | Internal
-const stats = { autoNext:0, manualNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
+const stats = { autoNext:0, shuffle:0, restart:0, pauses:0, volumeChanges:0 };
 
 // --- Log settings
 const MAX_LOGS = 50;
@@ -54,8 +54,7 @@ function updateStats() {
   const el = document.getElementById("statsPanel");
   if (el) {
     el.textContent =
-      `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | ` +
-      `Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges} ` +
+      `📊 Stats — AutoNext:${stats.autoNext} | Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges} ` +
       `— HTML ${HTML_VERSION} | JS ${JS_VERSION} | Main:${videoListMain.length} | Alt:${videoListAlt.length}`;
   }
 }
