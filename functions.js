@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.10.15";
+const JS_VERSION = "v2.10.22";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -182,6 +182,10 @@ function onPlayerStateChange(e, i) {
   const p = e.target;
 
   if (e.data === YT.PlayerState.ENDED) {
+    
+    // Καθαρισμός timers πριν φορτώσουμε νέο βίντεο
+    clearPlayerTimers(i);
+    
     // Μικρή παύση πριν το επόμενο βίντεο
     const afterEndPauseMs = rndInt(2000, 5000);
     logPlayer(i, `⏸ End pause ${Math.round(afterEndPauseMs/1000)}s`, p.getVideoData().video_id);
@@ -193,6 +197,7 @@ function onPlayerStateChange(e, i) {
         p.playVideo();
         logPlayer(i, "🔁 Replay video", p.getVideoData().video_id);
       } else {
+        clearPlayerTimers(i); // ξανά καθαρισμός πριν το νέο load
         const newId = getRandomVideos(1)[0];
         p.loadVideoById(newId);
         stats.autoNext++;
