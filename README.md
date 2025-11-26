@@ -78,6 +78,7 @@
 5. Χρησιμοποίησε τα κουμπιά για να ελέγξεις όλους τους players.  
 
 ---
+---
 
 ## 🔁 Flowchart fallback λίστας
 
@@ -108,6 +109,9 @@ flowchart TD
 - Αν αποτύχει κι αυτό → χρησιμοποιείται η εσωτερική λίστα IDs.
 - Μπορείς να αλλάξεις ή να προσθέσεις IDs απευθείας στο list.txt ή στο internalList του functions.js.
 - Το activity panel κρατάει μόνο τα τελευταία 50 logs.
+
+---
+---
 
 ## 📑 Screen Layout Management
 
