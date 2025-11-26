@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.14.36";
+const JS_VERSION = "v3.1.4";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -18,6 +18,9 @@ const stats = {
   errors:0, 
   volumeChanges:0 
 };
+
+// Πηγή ανά player (κελιδώνεται στην αρχή: "Main" | "Alt" | "Internal")
+const playerSources = Array.from({length: 8}, () => null);
 
 // --- Log settings
 const MAX_LOGS = 50;
@@ -69,6 +72,20 @@ function updateStats() {
 const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
 const rndDelayMs = (minS, maxS) => (minS + Math.random() * (maxS - minS)) * 1000;
 function getRandomVideos(n) { return [...videoList].sort(() => Math.random() - 0.5).slice(0, n); }
+
+function getRandomIdFromList(list) {
+  const src = list && list.length ? list : internalList;
+  return src[Math.floor(Math.random() * src.length)];
+}
+
+function getRandomIdForPlayer(i) {
+  const src = playerSources[i];
+  let list = internalList;
+  if (src === "Main" && videoListMain.length) list = videoListMain;
+  else if (src === "Alt" && videoListAlt.length) list = videoListAlt;
+  else if (src === "Internal") list = internalList;
+  return getRandomIdFromList(list);
+}
 
 // --- Load list with triple fallback
 function loadVideoList() {
@@ -129,6 +146,7 @@ function initPlayers() {
   if (videoListAlt.length < 10) {
     const ids = getRandomVideos(8);
     ids.forEach((id, i) => {
+      playerSources[i] = "Main"; // κελιδώνεται εδώ
       players[i] = new YT.Player(`player${i+1}`, {
         videoId: id,
         events: { onReady: e => onPlayerReady(e, i), onStateChange: e => onPlayerStateChange(e, i) }
@@ -143,6 +161,9 @@ function initPlayers() {
     let sourceList = (i < 4) ? videoListMain : videoListAlt;
     if (!sourceList.length) sourceList = internalList;
     const id = sourceList[Math.floor(Math.random() * sourceList.length)];
+    if (sourceList === videoListMain) playerSources[i] = "Main";
+    else if (sourceList === videoListAlt) playerSources[i] = "Alt";
+    else playerSources[i] = "Internal"; // κελιδώνεται εδώ
     players[i] = new YT.Player(`player${i+1}`, {
       videoId: id,
       events: { 
@@ -162,7 +183,7 @@ function onPlayerError(e, i) {
   const errCode = e.data;
   logPlayer(i, `❌ Error code=${errCode} — skipping`, p.getVideoData().video_id);
   clearPlayerTimers(i);
-  const newId = getRandomVideos(1)[0];
+  const newId = getRandomIdForPlayer(i);
   p.loadVideoById(newId);
   stats.autoNext++;
   logPlayer(i, "⏭ AutoNext (error skip)", newId);
@@ -207,7 +228,7 @@ function onPlayerStateChange(e, i) {
         stats.replay++;
       } else {
         clearPlayerTimers(i); // ξανά καθαρισμός πριν το νέο load
-        const newId = getRandomVideos(1)[0];
+        const newId = getRandomIdForPlayer(i);
         p.loadVideoById(newId);
         stats.autoNext++;
         logPlayer(i, "⏭ AutoNext", newId);
@@ -346,7 +367,7 @@ function stopAll() {
 }
 function nextAll() {
   players.forEach((p, i) => {
-    const newId = getRandomVideos(1)[0];
+    const newId = getRandomIdForPlayer(i);
     p.loadVideoById(newId);
     p.playVideo();
     logPlayer(i, "⏭ Next", newId);
@@ -354,21 +375,21 @@ function nextAll() {
   log(`[${ts()}] ⏭ Next All`);
 }
 function shuffleAll() {
-  const sh = getRandomVideos(players.length);
   players.forEach((p, i) => {
-    p.loadVideoById(sh[i]);
+    const newId = getRandomIdForPlayer(i);
+    p.loadVideoById(newId);
     p.playVideo();
-    logPlayer(i, "🎲 Shuffle", sh[i]);
+    logPlayer(i, "🎲 Shuffle", newId);
   });
   log(`[${ts()}] 🎲 Shuffle All`);
 }
 function restartAll() {
-  const set = getRandomVideos(players.length);
   players.forEach((p, i) => {
+    const newId = getRandomIdForPlayer(i);
     p.stopVideo();
-    p.loadVideoById(set[i]);
+    p.loadVideoById(newId);
     p.playVideo();
-    logPlayer(i, "🔁 Restart", set[i]);
+    logPlayer(i, "🔁 Restart", newId);
   });
   log(`[${ts()}] 🔁 Restart All`);
 }
