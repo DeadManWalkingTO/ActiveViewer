@@ -1,5 +1,5 @@
 // --- Versions
-const JS_VERSION = "v2.6.7";
+const JS_VERSION = "v2.8.8";
 const HTML_VERSION = document.querySelector('meta[name="html-version"]')?.content || "unknown";
 
 // --- State
@@ -160,17 +160,50 @@ function onPlayerReady(e, i) {
   }, startDelay);
 }
 
-function onPlayerStateChange(e, i) {
-  if (e.data === YT.PlayerState.ENDED) {
-    const p = e.target;
-    const newId = getRandomVideos(1)[0];
-    p.loadVideoById(newId);
-    stats.autoNext++;
-    logPlayer(i, "⏭ AutoNext", newId);
-    scheduleRandomPauses(p, i);
-    scheduleMidSeek(p, i);
-  }
-}
++ function onPlayerStateChange(e, i) {
++   const p = e.target;
++
++   if (e.data === YT.PlayerState.ENDED) {
++     // Μικρή παύση πριν το επόμενο βίντεο
++     const afterEndPauseMs = rndInt(2000, 5000);
++     logPlayer(i, `⏸ End pause ${Math.round(afterEndPauseMs/1000)}s`, p.getVideoData().video_id);
++
++     setTimeout(() => {
++       // 10% πιθανότητα Replay, αλλιώς AutoNext
++       if (Math.random() < 0.1) {
++         p.seekTo(0);
++         p.playVideo();
++         logPlayer(i, "🔁 Replay video", p.getVideoData().video_id);
++       } else {
++         const newId = getRandomVideos(1)[0];
++         p.loadVideoById(newId);
++         stats.autoNext++;
++         logPlayer(i, "⏭ AutoNext", newId);
++         scheduleRandomPauses(p, i);
++         scheduleMidSeek(p, i);
++       }
++
++       // Watchdog: αν δεν ξεκινήσει μέσα σε 8s, κάνε kick
++       setTimeout(() => {
++         const state = p.getPlayerState();
++         if (state !== YT.PlayerState.PLAYING) {
++           logPlayer(i, `🛠 Watchdog kick (state=${state})`, p.getVideoData().video_id);
++           p.playVideo();
++         }
++       }, 8000);
++     }, afterEndPauseMs);
++   }
++
++   // Αν μείνει σε PAUSED στο τέλος, το χειριζόμαστε σαν ENDED
++   if (e.data === YT.PlayerState.PAUSED) {
++     const d = p.getDuration();
++     const t = p.getCurrentTime();
++     if (d > 0 && t >= d - 1) {
++       logPlayer(i, `⚠ PAUSED at end detected`, p.getVideoData().video_id);
++       onPlayerStateChange({data: YT.PlayerState.ENDED}, i);
++     }
++   }
++ }
 
 // --- Natural behaviors
 function scheduleRandomPauses(p, i) {
