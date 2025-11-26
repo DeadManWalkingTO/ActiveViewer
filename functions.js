@@ -55,7 +55,8 @@ function updateStats() {
   if (el) {
     el.textContent =
       `📊 Stats — AutoNext:${stats.autoNext} | ManualNext:${stats.manualNext} | ` +
-      `Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}`;
+      `Shuffle:${stats.shuffle} | Restart:${stats.restart} | Pauses:${stats.pauses} | VolumeChanges:${stats.volumeChanges}` +
+      `— HTML ${HTML_VERSION} | JS ${JS_VERSION} | Main:${videoListMain.length} | Alt:${videoListAlt.length}';
   }
 }
 const rndInt = (min, max) => Math.floor(min + Math.random() * (max - min + 1));
