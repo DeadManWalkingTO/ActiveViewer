@@ -108,3 +108,48 @@ flowchart TD
 - Αν αποτύχει κι αυτό → χρησιμοποιείται η εσωτερική λίστα IDs.
 - Μπορείς να αλλάξεις ή να προσθέσεις IDs απευθείας στο list.txt ή στο internalList του functions.js.
 - Το activity panel κρατάει μόνο τα τελευταία 50 logs.
+
+## 📑 Screen Layout Management
+
+Η εφαρμογή **Active Viewer** προσαρμόζεται δυναμικά σε διαφορετικά μεγέθη οθόνης (desktop, laptop, tablet, mobile). Η διάταξη χωρίζεται σε τρία βασικά τμήματα:
+
+### 1. Controls Panel (πάνω μέρος)
+- Πάντα ορατό στην κορυφή (`position: sticky; top:0`).
+- Περιέχει όλα τα κουμπιά ελέγχου (Play, Pause, Stop, Next, Shuffle, Restart, Volume, Theme, Logs).
+
+### 2. Main Section (μεσαίο τμήμα)
+- Περιλαμβάνει το **Grid με τους 8 players** και το **Activity Panel (log)**.
+- **Desktop/Laptop:**
+  - Το ύψος μοιράζεται ποσοστιαία:
+    - Grid → ~70% του διαθέσιμου χώρου.
+    - Activity Panel → ~30% του διαθέσιμου χώρου, με scroll για τα logs.
+- **Tablet/Mobile:**
+  - Grid με λιγότερες στήλες και auto height:
+    - Tablet → 2 στήλες × 4 σειρές.
+    - Mobile → 1 στήλη × 8 σειρές.
+  - Τα iframes έχουν σταθερό ύψος (220px).
+  - Το Activity Panel έχει ύψος ~20% του viewport (`20vh`).
+
+### 3. Stats Panel (κάτω μέρος)
+- Πάντα ορατό στο κάτω μέρος της σελίδας.
+- Εμφανίζει counters (AutoNext, ManualNext, Shuffle, Restart, Pauses, VolumeChanges).
+- Έχει auto height, προσαρμόζεται στο περιεχόμενο.
+
+---
+
+## 📐 Responsive Συμπεριφορά
+- **Desktop/Laptop:**  
+  - Controls πάνω, Stats κάτω.  
+  - Grid και Activity μοιράζονται το υπόλοιπο ύψος με ποσοστά (70% / 30%).  
+- **Tablet/Mobile:**  
+  - Grid με λιγότερες στήλες και auto height.  
+  - Activity Panel με `20vh`.  
+  - Stats Panel κάτω, auto height.
+
+---
+
+## ⚠️ Σημεία Προσοχής
+- Χρήση `flex` και `min-height:0` για να αποτρέπεται η αύξηση ύψους του `.main` όταν το Activity Panel γεμίζει με logs.
+- Το Activity Panel έχει `overflow-y:auto` ώστε να εμφανίζεται scroll αντί να μεγαλώνει.
+- Το layout παραμένει σταθερό και ευανάγνωστο σε όλες τις συσκευές.
+
