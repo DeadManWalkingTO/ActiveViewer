@@ -6,88 +6,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Έκδοση HTML -->
   <meta name="html-version" content="v1.2.1" />
-<style>
-  body {
-    margin:0;
-    font-family:system-ui,sans-serif;
-    background:#111;
-    color:#eee;
-  }
-
-  .controls {
-    background:#1a1a1a;
-    padding:12px;
-    text-align:center;
-    position:sticky;
-    top:0;
-    z-index:10;
-    border-bottom:1px solid #333;
-  }
-  .controls h1 { margin:0 0 8px; font-size:20px; }
-  .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
-
-  button {
-    background:#222; color:#eee; border:1px solid #444;
-    padding:8px 14px; border-radius:6px; cursor:pointer;
-  }
-  button:hover { background:#2b2b2b; border-color:#666; }
-
-  iframe {
-    width:100%; height:100%; border:none; border-radius:8px; background:#000;
-  }
-
-  /* --- Desktop layout --- */
-  @media (min-width:1024px){
+  <style>
     body {
-      display:flex;
-      flex-direction:column;
-      height:100vh; /* όλο το viewport */
+      margin:0;
+      font-family:system-ui,sans-serif;
+      background:#111;
+      color:#eee;
     }
-    .main {
-      flex:1 1 auto;
-      display:flex;
-      flex-direction:column;
-    }
-    .grid {
-      flex:7; /* 70% του διαθέσιμου χώρου */
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-      padding:10px;
-    }
-    .activity {
-      flex:3; /* 30% του διαθέσιμου χώρου */
+
+    .controls {
       background:#1a1a1a;
-      border-top:1px solid #333;
-      padding:10px;
-      font-size:13px;
-      overflow-y:auto;
+      padding:12px;
+      text-align:center;
+      position:sticky;
+      top:0;
+      z-index:10;
+      border-bottom:1px solid #333;
     }
-    .stats {
-      flex:0 0 auto;
-      background:#222;
-      padding:8px;
-      font-size:12px;
-      border-top:1px solid #333;
+    .controls h1 { margin:0 0 8px; font-size:20px; }
+    .controls .row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
+
+    button {
+      background:#222; color:#eee; border:1px solid #444;
+      padding:8px 14px; border-radius:6px; cursor:pointer;
     }
-  }
+    button:hover { background:#2b2b2b; border-color:#666; }
 
-  /* --- Mobile/Tablet layout --- */
-  @media (max-width:768px){
-    .grid { grid-template-columns:repeat(2,1fr); height:auto; }
-    iframe { height:220px; }
-    .activity { height:20vh; }
-    .stats { font-size:12px; }
-  }
+    iframe {
+      width:100%; height:100%; border:none; border-radius:8px; background:#000;
+    }
 
-  /* Light theme */
-  body.light { background:#f9f9f9; color:#222; }
-  body.light .controls { background:#eaeaea; border-bottom-color:#ccc; }
-  body.light button { background:#fff; color:#222; border-color:#ccc; }
-  body.light button:hover { background:#ddd; border-color:#999; }
-  body.light .activity { background:#eaeaea; border-top-color:#ccc; }
-  body.light .stats { background:#ddd; border-top-color:#ccc; }
-</style>
+    /* --- Desktop layout --- */
+    @media (min-width:1024px){
+      body {
+        display:flex;
+        flex-direction:column;
+        height:100vh; /* όλο το viewport */
+      }
+      .main {
+        flex:1 1 auto;
+        display:flex;
+        flex-direction:column;
+      }
+      .grid {
+        flex:7; /* 70% του διαθέσιμου χώρου */
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:10px;
+        padding:10px;
+      }
+      .activity {
+        flex:3; /* 30% του διαθέσιμου χώρου */
+        background:#1a1a1a;
+        border-top:1px solid #333;
+        padding:10px;
+        font-size:13px;
+        overflow-y:auto;
+      }
+      .stats {
+        flex:0 0 auto;
+        background:#222;
+        padding:8px;
+        font-size:12px;
+        border-top:1px solid #333;
+      }
+    }
+
+    /* --- Mobile/Tablet layout --- */
+    @media (max-width:768px){
+      .grid { grid-template-columns:repeat(2,1fr); height:auto; }
+      iframe { height:220px; }
+      .activity { height:20vh; }
+      .stats { font-size:12px; }
+    }
+
+    /* Light theme */
+    body.light { background:#f9f9f9; color:#222; }
+    body.light .controls { background:#eaeaea; border-bottom-color:#ccc; }
+    body.light button { background:#fff; color:#222; border-color:#ccc; }
+    body.light button:hover { background:#ddd; border-color:#999; }
+    body.light .activity { background:#eaeaea; border-top-color:#ccc; }
+    body.light .stats { background:#ddd; border-top-color:#ccc; }
+  </style>
 
 </head>
 <body>
@@ -109,13 +109,20 @@
     </div>
   </div>
 
-  <div class="grid">
-    <div id="player1"></div><div id="player2"></div><div id="player3"></div><div id="player4"></div>
-    <div id="player5"></div><div id="player6"></div><div id="player7"></div><div id="player8"></div>
+  <!-- Main wrapper: Grid + Activity -->
+  <div class="main">
+    <div class="grid">
+      <div id="player1"></div><div id="player2"></div><div id="player3"></div><div id="player4"></div>
+      <div id="player5"></div><div id="player6"></div><div id="player7"></div><div id="player8"></div>
+    </div>
+
+    <div class="activity" id="activityPanel"></div>
   </div>
 
-  <div class="activity" id="activityPanel"></div>
-  <div class="stats" id="statsPanel">📊 Stats — AutoNext:0 | ManualNext:0 | Shuffle:0 | Restart:0 | Pauses:0 | VolumeChanges:0</div>
+  <!-- Stats Panel -->
+  <div class="stats" id="statsPanel">
+    📊 Stats — AutoNext:0 | ManualNext:0 | Shuffle:0 | Restart:0 | Pauses:0 | VolumeChanges:0
+  </div>
 
   <!-- YouTube API -->
   <script src="https://www.youtube.com/iframe_api"></script>
