@@ -156,4 +156,36 @@ flowchart TD
 - Χρήση `flex` και `min-height:0` για να αποτρέπεται η αύξηση ύψους του `.main` όταν το Activity Panel γεμίζει με logs.
 - Το Activity Panel έχει `overflow-y:auto` ώστε να εμφανίζεται scroll αντί να μεγαλώνει.
 - Το layout παραμένει σταθερό και ευανάγνωστο σε όλες τις συσκευές.
+ 
+---
+---
+
+## Νέα Λογική Λιστών (Main & Alt)
+
+Η εφαρμογή πλέον υποστηρίζει δύο λίστες βίντεο:
+
+- **Main list (list.txt)** → η κύρια λίστα που φορτώνεται με τριπλό fallback (Local → Web → Internal).
+- **Alt list (random.txt)** → η δευτερεύουσα λίστα που φορτώνεται από τοπικό αρχείο.
+
+### Κανόνες Χρήσης
+- Αν η Alt λίστα έχει **λιγότερα από 10 IDs**, αγνοείται και όλοι οι players τρέχουν από την Main list (log: *Alt list <10 IDs, ignored*).
+- Αν η Alt λίστα έχει **10 ή περισσότερα IDs**, οι players μοιράζονται στη μέση:
+  - **Players 1–4** → Main list
+  - **Players 5–8** → Alt list
+
+### Stats Panel
+Το Stats Panel εμπλουτίστηκε ώστε να εμφανίζει:
+- Counters (AutoNext, ManualNext, Shuffle, Restart, Pauses, VolumeChanges)
+- Τις εκδόσεις HTML και JS
+- Τα μεγέθη των λιστών (Main και Alt)
+
+Παράδειγμα:
+- 📊 Stats — AutoNext:3 | ManualNext:0 | Shuffle:1 | Restart:0 | Pauses:2 | VolumeChanges:1 — HTML v1.5.8 | JS v2.4.6 | Main:81 | Alt:2042
+
+### Logs
+- Κατά την εκκίνηση και την επανεκκίνηση των players εμφανίζεται log με την πηγή κάθε player (Main ή Alt).
+- Σε περίπτωση που η Alt λίστα έχει <10 IDs, εμφανίζεται σχετικό μήνυμα στο log.
+
+---
+
 
