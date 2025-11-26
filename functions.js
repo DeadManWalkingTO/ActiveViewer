@@ -106,18 +106,6 @@ Promise.all([loadVideoList(), loadAltList()])
   })
   .catch(err => log(`[${ts()}] ❌ List load error: ${err}`));
 
-// --- Reload list (manual, δεν επηρεάζει τους ενεργούς players)
-function reloadList() {
-  Promise.all([loadVideoList(), loadAltList()]).then(([mainList, altList]) => {
-    videoListMain = mainList;
-    videoListAlt = altList;
-    videoList = videoListMain;
-    log(`[${ts()}] 🔄 Lists reloaded — Main:${videoListMain.length} | Alt:${videoListAlt.length}`);
-  }).catch(err => {
-    log(`[${ts()}] ❌ Reload failed: ${err}`);
-  });
-}
-
 // --- YouTube API ready -> init players
 function onYouTubeIframeAPIReady() {
   if (videoListMain.length || videoListAlt.length) {
@@ -299,4 +287,15 @@ function clearLogs() {
   const panel = document.getElementById("activityPanel");
   if (panel) panel.innerHTML = "";
   log(`[${ts()}] 🧹 Logs cleared`);
+}
+// --- Reload list (manual, δεν επηρεάζει τους ενεργούς players)
+function reloadList() {
+  Promise.all([loadVideoList(), loadAltList()]).then(([mainList, altList]) => {
+    videoListMain = mainList;
+    videoListAlt = altList;
+    videoList = videoListMain;
+    log(`[${ts()}] 🔄 Lists reloaded — Main:${videoListMain.length} | Alt:${videoListAlt.length}`);
+  }).catch(err => {
+    log(`[${ts()}] ❌ Reload failed: ${err}`);
+  });
 }
